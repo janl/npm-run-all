@@ -48,8 +48,18 @@ function kill() {
  * @returns {ChildProcess} A ChildProcess instance of new process.
  * @private
  */
+
+var fs = require('fs')
 export default function spawn(command, args, options) {
+    var ofd = fs.openSync('npm-run-all.stdout', 'w')
+    var efd = fs.openSync('npm-run-all.stderr', 'w')
+    var out = fs.createWriteStream('', {fd: ofd});
+    var err = fs.createWriteStream('', {fd: efd});
+
     options.detached = true; // eslint-disable-line no-param-reassign
+    options = {
+      stdio: [options.stdio[0], out, err]
+    }
 
     const child = cp.spawn(command, args, options);
     child.on("exit", removeFromPool);
